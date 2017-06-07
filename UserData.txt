@@ -1,0 +1,13 @@
+<powershell>
+iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))
+choco install dotnetcore-sdk -y
+Install-WindowsFeature -Name Web-Server -IncludeManagementTools
+choco install dotnetcore-windowshosting -y
+Invoke-WebRequest -Uri https://s3-ap-southeast-2.amazonaws.com/cors.powershell.ms/EC2InstanceInfo.zip -OutFile C:\EC2InstanceInfo.zip
+Expand-Archive C:\EC2InstanceInfo.zip -DestinationPath C:\ -Force
+Set-Location -Path C:\EC2InstanceInfo\
+& "C:\Program Files\dotnet\dotnet.exe" restore
+& "C:\Program Files\dotnet\dotnet.exe" publish --configuration release -o c:\ExploringAspNetCore\publish --framework netcoreapp1.1
+Import-Module WebAdministration
+Set-ItemProperty 'IIS:\sites\Default Web Site' -Name physicalPath -Value c:\ExploringAspNetCore\publish
+</powershell>
